@@ -1,0 +1,26 @@
+// INFO: Variables used in the article
+:local_user: user
+:local_hostname: localhost
+
+= Proxmox Virtual Environment step by step
+
+== Download ISO installer and prepare a USB Flash Drive as Installation Medium
+
+Download https://www.proxmox.com/en/downloads/proxmox-virtual-environment/iso/proxmox-ve-8-1-iso-installer[Proxmox Virtual Environment installer].
+Use `dd` command like presented below to populate USB Flash Drive.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ dd bs=1M conv=fdatasync if=./proxmox-ve_8.1-1.iso of=/dev/sda
+-------------------------------------------------------------------------------
+
+Remember to use raw block device like `/dev/sda`, `/dev/sdb` (or other) instead
+of partition block device like `/dev/sda1`, `/dev/sdb1` (or other).
+
+== Source of information
+
+* https://pve.proxmox.com/wiki/PCI_Passthrough[Proxmox PCI Passthrough]
+* https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF[PCI passthrough via OVMF]
+* https://www.reddit.com/r/homelab/comments/b5xpua/the_ultimate_beginners_guide_to_gpu_passthrough[The Ultimate Beginner's Guide to GPU Passthrough]
+* https://www.reddit.com/r/Proxmox/comments/lcnn5w/proxmox_pcie_passthrough_in_2_minutes[Proxmox PCI(e) Passthrough in 2 minutes]
+* https://elijahliedtke.medium.com/home-lab-guides-proxmox-6-pci-e-passthrough-with-nvidia-43ccfb9424de[Home Lab Guides: Proxmox 6 — PCI(e) Passthrough with NVIDIA]
