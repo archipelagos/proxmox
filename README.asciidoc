@@ -6,16 +6,17 @@
 
 == Download ISO installer and prepare a USB Flash Drive as Installation Medium
 
-Download https://www.proxmox.com/en/downloads/proxmox-virtual-environment/iso/proxmox-ve-8-1-iso-installer[Proxmox Virtual Environment installer].
-Use `dd` command like presented below to populate USB Flash Drive.
+Download https://www.proxmox.com/en/downloads/proxmox-virtual-environment/iso/proxmox-ve-8-1-iso-installer[PVE installer] ISO file.
+Use `dd` command like presented below to populate USB Flash Drive with it. The
+flash drive needs to have at least 1 GB of storage available.
 
 [subs="+attributes"]
 -------------------------------------------------------------------------------
 [{local_user}@{local_hostname} ~]$ dd bs=1M conv=fdatasync if=./proxmox-ve_8.1-1.iso of=/dev/sda
 -------------------------------------------------------------------------------
 
-Remember to use raw block device like `/dev/sda`, `/dev/sdb` (or other) instead
-of partition block device like `/dev/sda1`, `/dev/sdb1` (or other).
+Remember to use raw block device like `/dev/sda`, `/dev/sdb`, `/dev/sdc`, ... instead
+of partition block device like `/dev/sda1`, `/dev/sdb1`, `/dev/sdc1`, ... .
 
 == Source of information
 
