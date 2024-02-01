@@ -30,13 +30,9 @@ may need to disable CSM to ensure the system boots using UEFI.
 
 == Install Proxmox Virtual Environment
 
-
-
-
-
-
-
-
+Use option `Install Proxmoc VE (Graphical)`. The installation process is
+straightforward. One important thing is to set proper `Hostname (FQDN)`. Names
+like `hostname_abc.def` will cause errors. Try to use names like `hostname.abc`.
 
 == Source of information
 
