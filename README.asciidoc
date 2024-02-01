@@ -34,6 +34,154 @@ Use option `Install Proxmoc VE (Graphical)`. The installation process is
 straightforward. One important thing is to set proper `Hostname (FQDN)`. Names
 like `hostname_abc.def` will cause errors. Try to use names like `hostname.abc`.
 
+== Solving anoying warning problem.
+
+When you SSH into Proxmox for very first time, an anoying warinig appears when
+you type command and use `tab` for auto completion.
+
+-------------------------------------------------------------------------------
+perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+	LANGUAGE = (unset),
+	LC_ALL = (unset),
+	LC_ADDRESS = "pl_PL.UTF-8",
+	LC_NAME = "pl_PL.UTF-8",
+	LC_MONETARY = "pl_PL.UTF-8",
+	LC_PAPER = "pl_PL.UTF-8",
+	LC_IDENTIFICATION = "pl_PL.UTF-8",
+	LC_TELEPHONE = "pl_PL.UTF-8",
+	LC_MEASUREMENT = "pl_PL.UTF-8",
+	LC_TIME = "pl_PL.UTF-8",
+	LC_NUMERIC = "pl_PL.UTF-8",
+	LANG = "en_US.UTF-8"
+    are supported and installed on your system.
+perl: warning: Falling back to a fallback locale ("en_US.UTF-8").
+-------------------------------------------------------------------------------
+
+Proceed with steps below to resolve this issue.
+
+Option no 1 is to use semi-graphical locales configuration.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ dpkg-reconfigure locales
+-------------------------------------------------------------------------------
+
+Option no 2 is to use console locales configuration.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+[{local_user}@{local_hostname} ~]$ sed -i -e 's/# pl_PL.UTF-8 UTF-8/pl_PL.UTF-8 UTF-8/' /etc/locale.gen
+-------------------------------------------------------------------------------
+
+Verify locales to be generated.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ grep -v \# /etc/locale.gen
+
+en_US.UTF-8 UTF-8
+pl_PL.UTF-8 UTF-8
+-------------------------------------------------------------------------------
+
+Generate locales.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ locale-gen
+-------------------------------------------------------------------------------
+
+== Verify time zone configuration.
+
+Option no 1 is to use semi-graphical time zone configuration.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ dpkg-reconfigure tzdata
+-------------------------------------------------------------------------------
+
+Option no 2 is to use console time zone configuration.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ echo Europe/Warsaw > /etc/timezone
+[{local_user}@{local_hostname} ~]$ dpkg-reconfigure -f noninteractive tzdata
+
+Current default time zone: 'Europe/Warsaw'
+Local time is now:      czw, 1 lut 2024, 12:47:06 CET.
+Universal Time is now:  Thu Feb  1 11:47:06 UTC 2024.
+
+-------------------------------------------------------------------------------
+
+== GRUB Setup
+
+SSH into your host and edit `/etc/default/grub` file. Look for
+`GRUB_CMDLINE_LINUX_DEFAULT="quiet"` line.
+
+For Intel modify line.
+
+-------------------------------------------------------------------------------
+GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt"
+-------------------------------------------------------------------------------
+
+For AMD modify line.
+
+-------------------------------------------------------------------------------
+GRUB_CMDLINE_LINUX_DEFAULT="quiet amd_iommu=on iommu=pt"
+-------------------------------------------------------------------------------
+
+Update the UEFI boot entries.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ update-grub2
+Generating grub configuration file ...
+Found linux image: /boot/vmlinuz-6.5.11-4-pve
+Found initrd image: /boot/initrd.img-6.5.11-4-pve
+Found memtest86+ 64bit EFI image: /boot/memtest86+x64.efi
+Adding boot menu entry for UEFI Firmware Settings ...
+done
+-------------------------------------------------------------------------------
+
+== Verify IOMMU is enabled
+
+After reboot.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ dmesg | grep -e "DMAR: IOMMU enabled"
+-------------------------------------------------------------------------------
+
+If there is no output, something is wrong.
+
+== Kernel Modules
+
+Add the following lines to `/etc/modules`.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ echo vfio >> /etc/modules
+[{local_user}@{local_hostname} ~]$ echo vfio_iommu_type1 >> /etc/modules
+[{local_user}@{local_hostname} ~]$ echo vfio_pci >> /etc/modules
+[{local_user}@{local_hostname} ~]$ echo vfio_virqfd >> /etc/modules
+-------------------------------------------------------------------------------
+
+Add the kernel modules to the boot list.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ update-initramfs -u
+update-initramfs: Generating /boot/initrd.img-6.5.11-4-pve
+Running hook script 'zz-proxmox-boot'..
+Re-executing '/etc/kernel/postinst.d/zz-proxmox-boot' in new private mount namespace..
+No /etc/kernel/proxmox-boot-uuids found, skipping ESP sync.
+System booted in EFI-mode but 'grub-efi-amd64' meta-package not installed!
+Install 'grub-efi-amd64' to get updates.
+Couldn't find EFI system partition. It is recommended to mount it to /boot or /efi.
+Alternatively, use --esp-path= to specify path to mount point.
+-------------------------------------------------------------------------------
+
 == Source of information
 
 * https://pve.proxmox.com/wiki/PCI_Passthrough[Proxmox PCI Passthrough]
