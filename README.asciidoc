@@ -18,6 +18,26 @@ flash drive needs to have at least 1 GB of storage available.
 Remember to use raw block device like `/dev/sda`, `/dev/sdb`, `/dev/sdc`, ... instead
 of partition block device like `/dev/sda1`, `/dev/sdb1`, `/dev/sdc1`, ... .
 
+== Enable Vanderpool (Intel Virtualization Technology)
+
+Enter BIOS/UEFI menu and enable the VT-d CPU flags. Because some menus are
+different look for something like Enable Virtualization Technology
+
+== Set boot priority for your UEFI-based Proxmox drive
+
+You may see Proxmox and (UEFI) Proxmox boot options or something similar. You
+may need to disable CSM to ensure the system boots using UEFI.
+
+== Install Proxmox Virtual Environment
+
+
+
+
+
+
+
+
+
 == Source of information
 
 * https://pve.proxmox.com/wiki/PCI_Passthrough[Proxmox PCI Passthrough]
