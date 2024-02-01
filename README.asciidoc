@@ -182,6 +182,37 @@ Couldn't find EFI system partition. It is recommended to mount it to /boot or /e
 Alternatively, use --esp-path= to specify path to mount point.
 -------------------------------------------------------------------------------
 
+== Create a new VM able to display on physical screen
+
+New virtual machine should be created with default parameters. Only listed
+below need special attention.
+
+`System` > `Graphic card` > `Default`
+`System` > `Machine` > `q35`
+`System` > `BIOS` > `OVMF (UEFI)`
+`Memory` > `Memory (MiB)` > `6144` (this has be less than available on host)
+
+Options below just helps with maintenance.
+
+`System` > `SCSI Controller` > `VirtIO SCSI` (not single)
+`System` > `Qemu Agnet` > `enabled`
+`System` > `Add EFI Disk` > `enabled`
+
+Install your favorite OS on fresh VM. Launch it, configure and ensure that
+default display works fine.
+
+Click right on new VM and stop it. Go to `Hardware`, click `Add` and choose
+`PCI Device`. Fill window `Edit: PCI Device` similar to presented.
+
+`Raw Device` > `Device` > `0000:00:02.0`
+`Raw Device` > `All Functions` > `enabled`
+`Primary GPU` > `enabled`
+`PCI-Express` > `enabled`
+
+Your `Display` should be now configured to `none (none)`.
+
+Start your VM and watch output on physical display.
+
 == Source of information
 
 * https://pve.proxmox.com/wiki/PCI_Passthrough[Proxmox PCI Passthrough]
