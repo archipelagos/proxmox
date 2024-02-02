@@ -213,6 +213,77 @@ Your `Display` should be now configured to `none (none)`.
 
 Start your VM and watch output on physical display.
 
+== Play audio from VM on host via PulseAudio
+
+=== Host server configuration without any access restrictions
+
+First install manadatory package.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ sudo apt install pulseaudio
+-------------------------------------------------------------------------------
+
+Double check if `~/.config/pulse` directory is not existing (from previous
+installation or launch for example). This setup is applied system wide so you
+do not want to mess with any local setup.
+
+Add following line to `/etc/pulse/default.pa` file. Populate it. For start do
+not worry about any access restrictions. For base setup each host is allowed to
+connect to server and stream its own audio.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ tail -n 1 /etc/pulse/default.pa
+load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.4.0/24 auth-anonymous=1
+-------------------------------------------------------------------------------
+
+Start server as *current desktop user*. In case of non-desktop users just make
+sure that user belongs to proper groups if something goes wrong.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ pulseaudio --start
+-------------------------------------------------------------------------------
+
+If there is no problems with daemon there should be no output on console. You
+can always check if your server is running.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ pulseaudio --check && echo PulseAudio server is running || echo PulseAudio server is not running"
+-------------------------------------------------------------------------------
+
+Stop your server.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ pulseaudio --kill
+-------------------------------------------------------------------------------
+
+=== Guest client configuration for Ubuntu 23.10.1 (Mantic Minotaur)
+
+Add proper system wide environment variable.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ grep PULSE_SERVER /etc/environment
+PULSE_SERVER=192.168.4.5
+-------------------------------------------------------------------------------
+
+You can specify protocol and port if needed for configuration other than
+default.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ grep PULSE_SERVER /etc/environment
+PULSE_SERVER=tcp:192.168.4.5:4713
+-------------------------------------------------------------------------------
+
+Restart your login session or reboot.
+
+=== Server configuration with ACL based access
+
 == Source of information
 
 * https://pve.proxmox.com/wiki/PCI_Passthrough[Proxmox PCI Passthrough]
@@ -220,3 +291,9 @@ Start your VM and watch output on physical display.
 * https://www.reddit.com/r/homelab/comments/b5xpua/the_ultimate_beginners_guide_to_gpu_passthrough[The Ultimate Beginner's Guide to GPU Passthrough]
 * https://www.reddit.com/r/Proxmox/comments/lcnn5w/proxmox_pcie_passthrough_in_2_minutes[Proxmox PCI(e) Passthrough in 2 minutes]
 * https://elijahliedtke.medium.com/home-lab-guides-proxmox-6-pci-e-passthrough-with-nvidia-43ccfb9424de[Home Lab Guides: Proxmox 6 — PCI(e) Passthrough with NVIDIA]
+* https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/Running[Running the PulseAudio]
+* https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/Network[Network Setup  of the PulseAudio]
+* https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/ServerStrings[The Format of Server Strings in the PulseAudio]
+* https://wiki.archlinux.org/title/PulseAudio/Examples#Set_default_input_source[PulseAudio/Examples]
+* https://gist.github.com/xarinatan/c415341ff34eab445cfb073988dcf6c1[How to set up PulseAudio over Network]]
+
