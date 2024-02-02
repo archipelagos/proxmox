@@ -228,14 +228,14 @@ Double check if `~/.config/pulse` directory is not existing (from previous
 installation or launch for example). This setup is applied system wide so you
 do not want to mess with any local setup.
 
-Add following line to `/etc/pulse/default.pa` file. Populate it. For start do
-not worry about any access restrictions. For base setup each host is allowed to
-connect to server and stream its own audio.
+Add following line to `/etc/pulse/default.pa` file. For start do not worry
+about any access restrictions. For base setup each host is allowed to connect
+to server and stream its own audio.
 
 [subs="+attributes"]
 -------------------------------------------------------------------------------
 [{local_user}@{local_hostname} ~]$ tail -n 1 /etc/pulse/default.pa
-load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.4.0/24 auth-anonymous=1
+load-module module-native-protocol-tcp auth-ip-acl=192.168.4.0/24 auth-anonymous=1
 -------------------------------------------------------------------------------
 
 Start server as *current desktop user*. In case of non-desktop users just make
@@ -282,7 +282,22 @@ PULSE_SERVER=tcp:192.168.4.5:4713
 
 Restart your login session or reboot.
 
-=== Server configuration with ACL based access
+=== Server configuration with access restriction
+
+Server can restrict connections for clients who are not able to authenticate.
+To achieve that you need to modify `/etc/pulse/default.pa` file again. Your
+line should not contain ` auth-anonymous=1` this time.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ tail -n 1 /etc/pulse/default.pa
+load-module module-native-protocol-tcp auth-ip-acl=192.168.4.0/24
+-------------------------------------------------------------------------------
+
+This means that each client in the network need to authenticate to establish
+connection. Without that client is not able to stream audio - server will just
+ignore it. Token based authentication is used for valid connection. Both sides
+need to share the same token, which is called cookie.
 
 == Source of information
 
@@ -294,6 +309,8 @@ Restart your login session or reboot.
 * https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/Running[Running the PulseAudio]
 * https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/Network[Network Setup  of the PulseAudio]
 * https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/ServerStrings[The Format of Server Strings in the PulseAudio]
-* https://wiki.archlinux.org/title/PulseAudio/Examples#Set_default_input_source[PulseAudio/Examples]
+* https://wiki.archlinux.org/title/PulseAudio/Examples#Set_default_input_source[Examples of PulseAudio usage]
+* https://wiki.archlinux.org/title/PulseAudio#Configuration_command[PulseAudio environment variables]
 * https://gist.github.com/xarinatan/c415341ff34eab445cfb073988dcf6c1[How to set up PulseAudio over Network]]
+
 
