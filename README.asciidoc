@@ -15,8 +15,9 @@ flash drive needs to have at least 1 GB of storage available.
 [{local_user}@{local_hostname} ~]$ dd bs=1M conv=fdatasync if=./proxmox-ve_8.1-1.iso of=/dev/sda
 -------------------------------------------------------------------------------
 
-Remember to use raw block device like `/dev/sda`, `/dev/sdb`, `/dev/sdc`, ... instead
-of partition block device like `/dev/sda1`, `/dev/sdb1`, `/dev/sdc1`, ... .
+Remember to use raw block device like `/dev/sda`, `/dev/sdb`, `/dev/sdc`, ...
+instead of partition block device like `/dev/sda1`, `/dev/sdb1`, `/dev/sdc1`,
+... .
 
 == Enable Vanderpool (Intel Virtualization Technology)
 
@@ -32,7 +33,8 @@ may need to disable CSM to ensure the system boots using UEFI.
 
 Use option `Install Proxmoc VE (Graphical)`. The installation process is
 straightforward. One important thing is to set proper `Hostname (FQDN)`. Names
-like `hostname_abc.def` will cause errors. Try to use names like `hostname.abc`.
+like `hostname_abc.def` will cause errors. Try to use names like
+`hostname.abc`.
 
 == Solving anoying warning problem.
 
@@ -235,11 +237,12 @@ to server and stream its own audio.
 [subs="+attributes"]
 -------------------------------------------------------------------------------
 [{local_user}@{local_hostname} ~]$ tail -n 1 /etc/pulse/default.pa
-load-module module-native-protocol-tcp auth-ip-acl=192.168.4.0/24 auth-anonymous=1
+load-module module-native-protocol-tcp auth-anonymous=1
 -------------------------------------------------------------------------------
 
 Start server as *current desktop user*. In case of non-desktop users just make
-sure that user belongs to proper groups if something goes wrong.
+sure that user belongs to proper groups if something goes wrong. It is not
+recommended to launch PulseAudio daemon as root user!
 
 [subs="+attributes"]
 -------------------------------------------------------------------------------
@@ -282,11 +285,11 @@ PULSE_SERVER=tcp:192.168.4.5:4713
 
 Restart your login session or reboot.
 
-=== Server configuration with access restriction
+=== Server configuration with access restriction (ACL based)
 
-Server can restrict connections for clients who are not able to authenticate.
+Server can restrict connections only for clients from some particular network.
 To achieve that you need to modify `/etc/pulse/default.pa` file again. Your
-line should not contain ` auth-anonymous=1` this time.
+line should restrict access by ACL rule.
 
 [subs="+attributes"]
 -------------------------------------------------------------------------------
@@ -294,10 +297,36 @@ line should not contain ` auth-anonymous=1` this time.
 load-module module-native-protocol-tcp auth-ip-acl=192.168.4.0/24
 -------------------------------------------------------------------------------
 
-This means that each client in the network need to authenticate to establish
-connection. Without that client is not able to stream audio - server will just
-ignore it. Token based authentication is used for valid connection. Both sides
-need to share the same token, which is called cookie.
+Other example of ACL rule is to restrict connections only to particular address.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ tail -n 1 /etc/pulse/default.pa
+load-module module-native-protocol-tcp auth-ip-acl=192.168.4.27
+-------------------------------------------------------------------------------
+
+You are able to list particular addresses.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ tail -n 1 /etc/pulse/default.pa
+load-module module-native-protocol-tcp auth-ip-acl=192.168.4.27;192.168.4.28
+-------------------------------------------------------------------------------
+
+You are able to list particular networks.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ tail -n 1 /etc/pulse/default.pa
+load-module module-native-protocol-tcp auth-ip-acl=192.168.4.0/24;192.168.5.0/16
+-------------------------------------------------------------------------------
+
+But also you can mix them together.
+
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ tail -n 1 /etc/pulse/default.pa
+load-module module-native-protocol-tcp auth-ip-acl=192.168.4.27;192.168.5.0/16
+-------------------------------------------------------------------------------
 
 == Source of information
 
