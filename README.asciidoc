@@ -373,6 +373,77 @@ Such setup is useful for system wide config on client size where many users
 want to use the same audio server. Keep in mind that sometimes it is easier
 just to set ACL for particular address.
 
+=== Launching server with systemd as desktop user
+
+Server can be launched with `systemd`. There are examples available how to
+launch PulseAudio properly. Keep in mind that launching PulseAudio as
+*root is not recommended*. You should launch daemon as standard *desktop user*.
+
+Copy examples to systemd directories, which are dedicated for admin scripts.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ cp /usr/lib/systemd/user/pulseaudio.socket /etc/systemd/system/pulseaudio.socket
+[{local_user}@{local_hostname} ~]$ cp /usr/lib/systemd/user/pulseaudio.service /etc/systemd/system/pulseaudio.service
+-------------------------------------------------------------------------------
+
+Read information from `pulseaudio.service` presented.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ grep \# /etc/systemd/system/pulseaudio.service 
+# We require pulseaudio.socket to be active before starting the daemon, because
+# while it is possible to use the service without the socket, it is not clear
+# why it would be desirable.
+#
+# A user installing pulseaudio and doing `systemctl --user start pulseaudio`
+# will not get the socket started, which might be confusing and problematic if
+# the server is to be restarted later on, as the client autospawn feature
+# might kick in. Also, a start of the socket unit will fail, adding to the
+# confusion.
+#
+# After=pulseaudio.socket is not needed, as it is already implicit in the
+# socket-service relationship, see systemd.socket(5).
+# Note that notify will only work if --daemonize=no
+-------------------------------------------------------------------------------
+
+Launch `pulseaudio.socket`.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ systemctl --user start pulseaudio.socket
+-------------------------------------------------------------------------------
+
+Launch `pulseaudio.service`.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ systemctl --user start pulseaudio.service
+-------------------------------------------------------------------------------
+
+Verify if everything is ok.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ systemctl --user status pulseaudio.service
+● pulseaudio.service - Sound Service
+     Loaded: loaded (/usr/lib/systemd/user/pulseaudio.service; enabled; vendor preset: enabled)
+     Active: active (running) since Fri 2024-02-02 22:39:50 CET; 12h ago
+TriggeredBy: ● pulseaudio.socket
+   Main PID: 9275 (pulseaudio)
+      Tasks: 4 (limit: 38100)
+     Memory: 5.4M
+        CPU: 349ms
+     CGroup: /user.slice/user-1000.slice/user@1000.service/session.slice/pulseaudio.service
+             └─9275 /usr/bin/pulseaudio --daemonize=no --log-target=journal
+
+lut 02 22:39:49 intellias systemd[2719]: Starting Sound Service...
+lut 02 22:39:50 intellias systemd[2719]: Started Sound Service.
+-------------------------------------------------------------------------------
+
+Be aware, that the `systemctl` command invoked with `--user` switch is *not*
+equivalent to the `systemctl` command invoked without it.
+
 == Source of information
 
 * https://pve.proxmox.com/wiki/PCI_Passthrough[Proxmox PCI Passthrough]
