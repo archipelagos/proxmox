@@ -1,4 +1,4 @@
-// INFO: Variables used in the article
+// INFO: Variables used in the articleS
 :local_user: user
 :local_hostname: localhost
 
@@ -36,7 +36,7 @@ straightforward. One important thing is to set proper `Hostname (FQDN)`. Names
 like `hostname_abc.def` will cause errors. Try to use names like
 `hostname.abc`.
 
-== Solving anoying warning problem.
+== Solving anoying warning problem
 
 When you SSH into Proxmox for very first time, an anoying warinig appears when
 you type command and use `tab` for auto completion.
@@ -94,7 +94,7 @@ Generate locales.
 [{local_user}@{local_hostname} ~]$ locale-gen
 -------------------------------------------------------------------------------
 
-== Verify time zone configuration.
+== Verify time zone configuration
 
 Option no 1 is to use semi-graphical time zone configuration.
 
@@ -444,6 +444,164 @@ lut 02 22:39:50 intellias systemd[2719]: Started Sound Service.
 Be aware, that the `systemctl` command invoked with `--user` switch is *not*
 equivalent to the `systemctl` command invoked without it.
 
+== Configure Proxmox Virtual Environment to use dynamic IP
+
+By default Proxmox Virtual Environment is using static IP configuration. IP
+address is configured during installation process. The DHCP for servers is not
+recommended, however it is possible to use it.
+
+Install additional DHCP client. Without it network does not work any more.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ apt install isc-dhcp-client
+-------------------------------------------------------------------------------
+
+Configuration is done via file `/etc/network/interfaces`. Modify file like
+presented below.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ cat /etc/network/interfaces
+[...]
+auto vmbr0
+iface vmbr0 inet dhcp
+        bridge-ports ens3
+        bridge-stp off
+        bridge-fd 0
+        bridge-vlan-aware yes
+[...]
+-------------------------------------------------------------------------------
+
+This configuration changes static IP to dynamic IP, assigned by DHCP server
+working in the local network. You have to issue the `ifreload -a` command in
+order to take the effect.
+
+When the IP of the Proxmox VE got changed, you have to edit it in the
+`/etc/hosts` file as well. You can use automated mathod for that using script
+presented below.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ cat /root/update-etc-hosts.sh 
+#!/bin/bash
+
+HOSTS_FILE=/etc/hosts
+HOSTNAME=$(hostname -f)
+IFACE_NAME=vmbr0
+OLD_IP_ADDR=$(grep ${HOSTNAME} ${HOSTS_FILE} | xargs | cut -d \  -f 1)
+NEW_IP_ADDR=$(ip -4 addr show dev ${IFACE_NAME} | grep -o -E "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/" | tr -d \/)
+
+sed s/"${OLD_IP_ADDR}"/${NEW_IP_ADDR}/g -i ${HOSTS_FILE}
+-------------------------------------------------------------------------------
+
+There is no need to assign execute persmissions, because it can be launched by
+`systemd`. Create file in `/etc/systemd/system/update-etc-hosts.service` like
+presented below.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ cat /etc/systemd/system/update-etc-hosts.service 
+[Unit]
+DefaultDependencies=no
+After=network-online.target
+#Before=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh /root/update-etc-hosts.sh
+
+[Install]
+WantedBy=network-online.target
+-------------------------------------------------------------------------------
+
+Enable service `update-etc-hosts.service`. It will apply changes to
+`/etc/hosts` file on every boot.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ systemctl enable update-etc-hosts.service
+-------------------------------------------------------------------------------
+
+It is also useful to modify `/usr/bin/pvebanner` script to show proper IP
+address (fresh one, up to date one) on every login to physical console.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ cat /usr/bin/pvebanner
+#!/bin/bash
+
+IFACE_NAME=vmbr0
+LOCAL_IP=$(ip -4 addr show dev ${IFACE_NAME} | grep -o -E "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/" | tr -d \/)
+
+echo ------------------------------------------------------------------------------
+echo
+echo Welcome to the Proxmox Virtual Environment. Please use your web browser to
+echo configure this server - connect to:
+echo
+echo  https://${LOCAL_IP}:8006/
+echo
+echo ------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+This script will give output the same like original one.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+
+Welcome to the Proxmox Virtual Environment. Please use your web browser to
+configure this server - connect to:
+
+https://192.168.4.5:8006/
+
+-------------------------------------------------------------------------------
+
+== Poweroff platform every week
+
+Simple systemd timer script `/etc/systemd/system/systemd-poweroff.timer` can
+be added for regular poweroff of platform.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ cat /etc/systemd/system/systemd-poweroff.timer
+[Unit]
+Description=Poweroff every week
+
+[Timer]
+OnCalendar=Sun *-*-* 23:00:00
+
+[Install]
+WantedBy=timers.target
+-------------------------------------------------------------------------------
+
+Enable `systemd-poweroff.timer`.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ systemctl enable systemd-poweroff.timer
+Created symlink '/etc/systemd/system/timers.target.wants/systemd-poweroff.timer' → '/etc/systemd/system/systemd-poweroff.timer'.
+-------------------------------------------------------------------------------
+
+Start `systemd-poweroff.timer`.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ systemctl enable systemd-poweroff.timer
+-------------------------------------------------------------------------------
+
+== Wake-on-LAN
+
+Add new `udev` rule in `/etc/udev/rules.d/81-wol.rules`.
+
+[subs="+attributes"]
+-------------------------------------------------------------------------------
+[{local_user}@{local_hostname} ~]$ cat /etc/udev/rules.d/81-wol.rules
+ACTION=="add", SUBSYSTEM=="net", NAME=="enp*", RUN+="/usr/sbin/ethtool -s $name wol g"
+-------------------------------------------------------------------------------
+
+Reboot system.
+
 == Source of information
 
 * https://pve.proxmox.com/wiki/PCI_Passthrough[Proxmox PCI Passthrough]
@@ -457,5 +615,3 @@ equivalent to the `systemctl` command invoked without it.
 * https://wiki.archlinux.org/title/PulseAudio/Examples#Set_default_input_source[Examples of PulseAudio usage]
 * https://wiki.archlinux.org/title/PulseAudio#Configuration_command[PulseAudio environment variables]
 * https://gist.github.com/xarinatan/c415341ff34eab445cfb073988dcf6c1[How to set up PulseAudio over Network]]
-
-
