@@ -1,0 +1,5 @@
+prod:
+  proxmox_host:     PROXMOX_HOST_CICD_SECRET_VALUE
+  proxmox_port:     PROXMOX_PORT_CICD_SECRET_VALUE
+  proxmox_username: PROXMOX_USERNAME_CICD_SECRET_VALUE
+  proxmox_password: PROXMOX_PASSWORD_CICD_SECRET_VALUE
