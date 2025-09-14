@@ -1,0 +1,12 @@
+services:
+  actions-runner:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: no
+    secrets:
+      - actions-runner-creds
+
+secrets:
+   actions-runner-creds:
+     file: actions-runner-creds.env

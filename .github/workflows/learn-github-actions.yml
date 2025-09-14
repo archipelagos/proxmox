@@ -1,0 +1,65 @@
+name: Go
+
+on: [push]
+
+jobs:
+  build:
+
+    # TODO: Pass to runner label ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, self-hosted, linux, x64]
+
+    strategy:
+      matrix:
+        go-version: [ ' 1.25', '1.25.x' ]
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache-dependency-path: subdir/go.sum
+      - name: Display Go version
+        run: |
+          go \
+            version
+      - name: Apply secrets
+        env:
+          PROXMOX_INTERNAL_ADDRESS_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_INTERNAL_ADDRESS_CICD_SECRET_VALUE }}
+          PROXMOX_INTERNAL_TCP_PORT_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_INTERNAL_TCP_PORT_CICD_SECRET_VALUE }}
+          PROXMOX_EXTERNAL_ADDRESS_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_EXTERNAL_ADDRESS_CICD_SECRET_VALUE }}
+          PROXMOX_EXTERNAL_TCP_PORT_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_EXTERNAL_TCP_PORT_CICD_SECRET_VALUE }}
+          PROXMOX_USERNAME_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_USERNAME_CICD_SECRET_VALUE }}
+          PROXMOX_PASSWORD_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_PASSWORD_CICD_SECRET_VALUE }}
+        run: |
+          sed \
+            s/PROXMOX_INTERNAL_ADDRESS_CICD_SECRET_VALUE/$PROXMOX_INTERNAL_ADDRESS_CICD_SECRET_VALUE/g \
+            -i \
+            api/config.yml
+          sed \
+            s/PROXMOX_INTERNAL_TCP_PORT_CICD_SECRET_VALUE/$PROXMOX_INTERNAL_TCP_PORT_CICD_SECRET_VALUE/g \
+            -i \
+            api/config.yml
+          sed \
+            s/PROXMOX_EXTERNAL_ADDRESS_CICD_SECRET_VALUE/$PROXMOX_EXTERNAL_ADDRESS_CICD_SECRET_VALUE/g \
+            -i \
+            api/config.yml
+          sed \
+            s/PROXMOX_EXTERNAL_TCP_PORT_CICD_SECRET_VALUE/$PROXMOX_EXTERNAL_TCP_PORT_CICD_SECRET_VALUE/g \
+            -i \
+            api/config.yml
+          sed \
+            s/PROXMOX_USERNAME_CICD_SECRET_VALUE/$PROXMOX_USERNAME_CICD_SECRET_VALUE/g \
+            -i \
+            api/config.yml
+          sed \
+            s/PROXMOX_PASSWORD_CICD_SECRET_VALUE/$PROXMOX_PASSWORD_CICD_SECRET_VALUE/g \
+            -i \
+            api/config.yml
+      - name: Perform tests
+        run: |
+          go \
+            test \
+            -v \
+            ./...

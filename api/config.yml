@@ -1,0 +1,7 @@
+prod:
+  proxmox_internal_address:  192.168.1.5
+  proxmox_internal_tcp_port: 8006
+  proxmox_external_address:  waw.ddns.net
+  proxmox_external_tcp_port: 8006
+  proxmox_username:          root@pam
+  proxmox_password:          dummy_pass
