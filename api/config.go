@@ -1,54 +1,65 @@
 package api
 
 import (
-	"fmt"
 	"os"
-
-	"gopkg.in/yaml.v2"
+	"strconv"
 )
 
 type (
 	EnvConfig struct {
-		ProxmoxHost     string `yaml:"proxmox_host"`
-		ProxmoxPort     int    `yaml:"proxmox_port"`
-		ProxmoxUsername string `yaml:"proxmox_username"`
-		ProxmoxPassword string `yaml:"proxmox_password"`
+		ProxmoxInternalAddress   string
+		ProxmoxInternalTCPPort   int
+		ProxmoxExternalAddress   string
+		ProxmoxExternalTCPPort   int
+		ProxmoxUsername          string
+		ProxmoxPassword          string
+		ProxmoxConnectionTimeout int
 	}
-
-	AppConfig map[string]*EnvConfig
 )
 
 // Global configuration for the application.
-var appConfig AppConfig
 var EnvConfigProd EnvConfig
 
-func LoadAppConfig() error {
-	file, _ := os.Open("config.yml")
-	defer file.Close()
-	decoder := yaml.NewDecoder(file)
+func LoadEnvConfig() EnvConfig {
+	var envConfig EnvConfig
+	var err error
 
-	if err := decoder.Decode(&appConfig); err != nil {
-		return err
+	envConfig.ProxmoxInternalAddress = os.Getenv("PROXMOX_INTERNAL_ADDRESS_CICD_SECRET_VALUE")
+	if len(envConfig.ProxmoxInternalAddress) == 0 {
+		panic("Empty internal address")
 	}
 
-	return nil
-}
-
-func LoadEnvConfig(env string) EnvConfig {
-	envConfig, ok := appConfig[env]
-	if !ok {
-		panic(fmt.Errorf("No such environment: %s", env))
+	envConfig.ProxmoxInternalTCPPort, err = strconv.Atoi(os.Getenv("PROXMOX_INTERNAL_TCP_PORT_CICD_SECRET_VALUE"))
+	if err != nil {
+		panic("Bad internal TCP port")
 	}
 
-	return *envConfig
-}
+	envConfig.ProxmoxExternalAddress = os.Getenv("PROXMOX_EXTERNAL_ADDRESS_CICD_SECRET_VALUE")
+	if len(envConfig.ProxmoxInternalAddress) == 0 {
+		panic("Empty external address")
+	}
 
-func PrintEnvConfig(config EnvConfig, env string) {
-	fmt.Println("Environment:    " + env)
-	fmt.Println("  Proxmox host:     ", config.ProxmoxHost)
-	fmt.Println("  Proxmox port:     ", config.ProxmoxPort)
-	fmt.Println("  Proxmox username: ", config.ProxmoxUsername)
-	fmt.Println("  Proxmox password: ", config.ProxmoxPassword)
+	envConfig.ProxmoxExternalTCPPort, err = strconv.Atoi(os.Getenv("PROXMOX_EXTERNAL_TCP_PORT_CICD_SECRET_VALUE"))
+	if err != nil {
+		panic("Bad external TCP port")
+	}
 
-	fmt.Println()
+	envConfig.ProxmoxUsername = os.Getenv("PROXMOX_USERNAME_CICD_SECRET_VALUE")
+	if err != nil {
+		panic("Empty username")
+	}
+
+	envConfig.ProxmoxPassword = os.Getenv("PROXMOX_PASSWORD_CICD_SECRET_VALUE")
+	if err != nil {
+		panic("Empty password")
+	}
+
+	envConfig.ProxmoxConnectionTimeout, err = strconv.Atoi(os.Getenv("PROXMOX_CONNECTION_TIMEOUT_CICD_SECRET_VALUE"))
+	if err != nil || envConfig.ProxmoxConnectionTimeout == 0 {
+		panic("Bad connection timeout")
+	} else if envConfig.ProxmoxConnectionTimeout < 1 {
+		panic("Negative connection timeout")
+	}
+
+	return envConfig
 }

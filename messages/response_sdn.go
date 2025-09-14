@@ -9,6 +9,7 @@ type ResponseSDN struct {
 	SDNUse            int `json:"SDN.Use"`
 }
 
+// TODO: Implement via Unmarshaller interface.
 func ParseResponseSDN(bytes []byte) (ResponseSDN, error) {
 	var responseSDN ResponseSDN
 	unmarshalErr := json.Unmarshal(bytes, &responseSDN)

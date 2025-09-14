@@ -10,6 +10,7 @@ type ResponseDC struct {
 	SDNAllocate int `json:"SDN.Allocate"`
 }
 
+// TODO: Implement via Unmarshaller interface.
 func ParseResponseDC(bytes []byte) (ResponseDC, error) {
 	var responseDC ResponseDC
 	unmarshalErr := json.Unmarshal(bytes, &responseDC)

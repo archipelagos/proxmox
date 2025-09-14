@@ -24,7 +24,16 @@ RUN rm -rf actions-runner-linux-x64-2.331.0.tar.gz
 RUN chown -R ubuntu:ubuntu /home/ubuntu
 
 # INFO: Install all needed dependencies.
-RUN ./actions-runner/bin/installdependencies.sh
+RUN cd actions-runner && ./bin/installdependencies.sh
 
-# INFO: Configure and run.
-ENTRYPOINT [ "bash", "-c", "cd actions-runner && ./config.sh --url https://github.com/archipelagos/proxmox --token ABFF4ZMGLIKW4BRH6KRLMK3JOKR5U && ./run.sh" ]
+# INFO: Change user to standard one.
+USER 1000
+
+# INFO: Set workdir.
+WORKDIR /home/ubuntu/actions-runner
+
+# INFO: Copy helper script.
+COPY entrypoint.sh entrypoint.sh
+
+# INFO: Set entrypoint.
+ENTRYPOINT [ "bash", "-c", "/home/ubuntu/actions-runner/entrypoint.sh" ]

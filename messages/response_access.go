@@ -10,6 +10,7 @@ type ResponseAccess struct {
 	PermissionsModify int `json:"Permissions.Modify"`
 }
 
+// TODO: Implement via Unmarshaller interface.
 func ParseResponseAccess(bytes []byte) (ResponseAccess, error) {
 	var responseAccess ResponseAccess
 	unmarshalErr := json.Unmarshal(bytes, &responseAccess)

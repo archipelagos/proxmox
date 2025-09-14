@@ -29,6 +29,7 @@ type ResponseVMs struct {
 	VMGuestAgentFileSystemMgmt int `json:"VM.GuestAgent.FileSystemMgmt"`
 }
 
+// TODO: Implement via Unmarshaller interface.
 func ParseResponseVMs(bytes []byte) (ResponseVMs, error) {
 	var responseVMs ResponseVMs
 	unmarshalErr := json.Unmarshal(bytes, &responseVMs)

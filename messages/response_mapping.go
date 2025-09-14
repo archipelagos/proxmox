@@ -9,6 +9,7 @@ type ResponseMapping struct {
 	MappingModify     int `json:"Mapping.Modify"`
 }
 
+// TODO: Implement via Unmarshaller interface.
 func ParseResponseMapping(bytes []byte) (ResponseMapping, error) {
 	var responseMapping ResponseMapping
 	unmarshalErr := json.Unmarshal(bytes, &responseMapping)

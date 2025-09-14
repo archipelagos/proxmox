@@ -16,7 +16,12 @@ func TestResponseMappingUnmarshal(t *testing.T) {
 		{
 			"odered",
 			[]byte(`{"Mapping.Use":1,"Permissions.Modify":2,"Mapping.Audit":3,"Mapping.Modify":4}`),
-			messages.ResponseMapping{1, 2, 3, 4},
+			messages.ResponseMapping{
+				MappingUse:        1,
+				PermissionsModify: 2,
+				MappingAudit:      3,
+				MappingModify:     4,
+			},
 		},
 	}
 

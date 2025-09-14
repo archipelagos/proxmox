@@ -16,7 +16,11 @@ func TestResponseAccessUnmarshal(t *testing.T) {
 		{
 			"odered",
 			[]byte(`{"Group.Allocate":1,"User.Modify":2,"Permissions.Modify":3}`),
-			messages.ResponseAccess{1, 2, 3},
+			messages.ResponseAccess{
+				GroupAllocate:     1,
+				UserModify:        2,
+				PermissionsModify: 3,
+			},
 		},
 	}
 

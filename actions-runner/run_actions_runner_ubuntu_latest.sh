@@ -1,25 +1,13 @@
 #!/bin/bash
 
-CONTAINER_NAME=$(basename $(pwd))
-
-UID=1000
-GID=1000
-
+# INFO: Build containers.
+COMPOSE_BAKE=true \
 docker \
-    build \
-    --cache-from \
-    ${CONTAINER_NAME} \
-    -t \
-    ${CONTAINER_NAME} \
-    .
-    
+    compose \
+    build
+
+# INFO: Launch containers.
 docker \
-    run \
-    -it \
-    --rm \
-    -h ${CONTAINER_NAME} \
-    -w /home/ubuntu \
-    -u ${UID}:${GID} \
-    -t \
-    ${CONTAINER_NAME} \
-    bash
+    compose \
+    up \
+    --remove-orphans
