@@ -1,2 +1,8 @@
 qemu/iso
 qemu/img
+
+.bash_history
+.bashrc
+.gitconfig
+.ssh/
+ssh/
