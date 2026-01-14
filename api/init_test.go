@@ -1,12 +1,18 @@
 package api
 
 import (
+	"crypto/tls"
 	"log"
+	"net/http"
 	"testing"
 )
 
 func init() {
 	log.Println("api.init general")
+
+	// Disable security checks globally for all requests of the default client.
+	// Security note: Disabling security checks is dangerous and should be avoided.
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 }
 
 // You can use testing.T, if you want to test the code without benchmarking.
