@@ -4,5 +4,8 @@ qemu/img
 .bash_history
 .bashrc
 .gitconfig
-.ssh/
-ssh/
+.ssh
+.config
+.cache
+ssh
+go
