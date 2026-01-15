@@ -1,10 +1,12 @@
-package api
+package api_test
 
 import (
 	"io"
 	"net/http"
 	"net/url"
 	"testing"
+
+	"github.com/archipelagos/proxmox/api"
 )
 
 func TestApi(t *testing.T) {
@@ -31,6 +33,8 @@ func TestApi(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			teardownTest := setupTest(t)
 			defer teardownTest(t)
+
+			api.LoadEnvConfig("poleos")
 
 			url := "https://" + tc.host + ":8006/api2/json/access/ticket?" + tc.username + "&" + tc.password
 

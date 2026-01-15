@@ -1,14 +1,24 @@
-package api
+package api_test
 
 import (
 	"crypto/tls"
 	"log"
 	"net/http"
 	"testing"
+
+	"github.com/archipelagos/proxmox/api"
 )
 
 func init() {
 	log.Println("api.init general")
+
+	err := api.LoadAppConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//	mcs.PrintEnvConfig(mcs.LoadEnvConfig("mock"), "mock")
+	api.PrintEnvConfig(api.LoadEnvConfig("poleos"), "poleos")
 
 	// Disable security checks globally for all requests of the default client.
 	// Security note: Disabling security checks is dangerous and should be avoided.
