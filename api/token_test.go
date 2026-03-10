@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/archipelagos/proxmox/api"
+	"github.com/archipelagos/proxmox/messages"
 )
 
 func TestApi(t *testing.T) {
@@ -64,8 +65,16 @@ func TestApi(t *testing.T) {
 
 			body, _ := io.ReadAll(resp.Body)
 
-			//t.Log("response Body:", string(body))
-			_ = body
+			//t.Log("body:", string(body))
+
+			responseData, parseResponseAccessErr := messages.ParseResponseData(body)
+			if parseResponseAccessErr != nil {
+				t.Errorf("Failed to parse: %v\n", parseResponseAccessErr)
+			}
+
+			//t.Log("responseData:", responseData)
+
+			_ = responseData
 		})
 	}
 }
