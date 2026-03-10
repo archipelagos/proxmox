@@ -9,5 +9,11 @@ docker \
 # INFO: Launch containers.
 docker \
     compose \
-    up \
+    down \
     --remove-orphans
+
+# INFO: Launch containers.
+docker \
+    compose \
+    up \
+    --detach
