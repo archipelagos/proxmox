@@ -10,15 +10,15 @@ WORKDIR /home/ubuntu
 RUN apt update && apt install -y curl
 
 # INFO: Download the latest runner package.
-RUN curl -o actions-runner-linux-x64-2.331.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.331.0/actions-runner-linux-x64-2.331.0.tar.gz
+RUN curl -o actions-runner-linux-x64-2.332.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.332.0/actions-runner-linux-x64-2.332.0.tar.gz
 
 # INFO: Validate the hash.
-RUN echo "dccad95cd44acedf25f89ab03ec47d848fef27c9e8d445a194e3166a07b531b053e8efea7112644d03e0360f3bd108a9fbc596567290a1af773e60e6f8448f21  actions-runner-linux-x64-2.331.0.tar.gz" | sha512sum -c
+RUN echo "f2094522a6b9afeab07ffb586d1eb3f190b6457074282796c497ce7dce9e0f2a  actions-runner-linux-x64-2.332.0.tar.gz" | sha256sum -c
 
 # INFO: Extract the installer.
 RUN mkdir -p actions-runner
-RUN tar xzf actions-runner-linux-x64-2.331.0.tar.gz -C actions-runner
-RUN rm -rf actions-runner-linux-x64-2.331.0.tar.gz
+RUN tar xzf actions-runner-linux-x64-*.tar.gz -C actions-runner
+RUN rm -rf actions-runner-linux-x64-*.tar.gz
 
 # INFO: Set proper ownership.
 RUN chown -R ubuntu:ubuntu /home/ubuntu

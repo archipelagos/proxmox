@@ -43,6 +43,8 @@ func TestApi(t *testing.T) {
 			encodedPassword := url.QueryEscape(tc.password)
 			url := "https://" + tc.host + ":" + fmt.Sprintf("%d", tc.port) + "/api2/json/access/ticket?username=" + encodedUsername + "&password=" + encodedPassword
 
+			t.Log("URL: " + url)
+
 			req, reqErr := http.NewRequest("POST", url, nil)
 			if reqErr != nil {
 				//t.Errorf("Failed to create request: %v\n", reqErr)
@@ -65,7 +67,7 @@ func TestApi(t *testing.T) {
 
 			body, _ := io.ReadAll(resp.Body)
 
-			//t.Log("body:", string(body))
+			t.Log("body:", string(body))
 
 			responseData, parseResponseAccessErr := messages.ParseResponseData(body)
 			if parseResponseAccessErr != nil {
