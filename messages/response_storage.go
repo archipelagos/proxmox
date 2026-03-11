@@ -10,6 +10,7 @@ type ResponseStorage struct {
 	DatastoreAudit            int `json:"Datastore.Audit"`
 }
 
+// TODO: Implement via Unmarshaller interface.
 func ParseResponseStorage(bytes []byte) (ResponseStorage, error) {
 	var responseStorage ResponseStorage
 	unmarshalErr := json.Unmarshal(bytes, &responseStorage)

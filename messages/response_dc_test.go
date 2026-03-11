@@ -16,7 +16,13 @@ func TestResponseDCUnmarshal(t *testing.T) {
 		{
 			"odered",
 			[]byte(`{"Sys.Audit":1,"SDN.Use":2,"SDN.Audit":3,"Sys.Modify":4,"SDN.Allocate":5}`),
-			messages.ResponseDC{1, 2, 3, 4, 5},
+			messages.ResponseDC{
+				SysAudit:    1,
+				SDNUse:      2,
+				SDNAudit:    3,
+				SysModify:   4,
+				SDNAllocate: 5,
+			},
 		},
 	}
 

@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/archipelagos/proxmox/api"
+	"github.com/archipelagos/proxmox/messages"
 )
 
 func TestApi(t *testing.T) {
@@ -24,10 +26,10 @@ func TestApi(t *testing.T) {
 	}{
 		{
 			"prod",
-			api.EnvConfigProd.ProxmoxHost,
-			api.EnvConfigProd.ProxmoxPort,
-			"username=" + url.QueryEscape(api.EnvConfigProd.ProxmoxUsername),
-			"password=" + url.QueryEscape(api.EnvConfigProd.ProxmoxPassword),
+			api.EnvConfigProd.ProxmoxInternalAddress,
+			api.EnvConfigProd.ProxmoxInternalTCPPort,
+			api.EnvConfigProd.ProxmoxUsername,
+			api.EnvConfigProd.ProxmoxPassword,
 			http.StatusOK,
 		},
 	}
@@ -37,16 +39,24 @@ func TestApi(t *testing.T) {
 			teardownTest := setupTest(t)
 			defer teardownTest(t)
 
-			url := "https://" + tc.host + ":" + fmt.Sprintf("%d", tc.port) + "/api2/json/access/ticket?" + tc.username + "&" + tc.password
+			encodedUsername := url.QueryEscape(tc.username)
+			encodedPassword := url.QueryEscape(tc.password)
+			url := "https://" + tc.host + ":" + fmt.Sprintf("%d", tc.port) + "/api2/json/access/ticket?username=" + encodedUsername + "&password=" + encodedPassword
+
+			t.Log("URL: " + url)
 
 			req, reqErr := http.NewRequest("POST", url, nil)
 			if reqErr != nil {
+				//t.Errorf("Failed to create request: %v\n", reqErr)
 				t.Errorf("Failed to create request\n")
 			}
 
-			client := &http.Client{}
+			client := &http.Client{
+				Timeout: (5 * time.Second),
+			}
 			resp, err := client.Do(req)
 			if err != nil {
+				//t.Errorf("Failed to execute request: %v\n", err)
 				t.Errorf("Failed to execute request\n")
 			}
 			defer resp.Body.Close()
@@ -57,8 +67,16 @@ func TestApi(t *testing.T) {
 
 			body, _ := io.ReadAll(resp.Body)
 
-			//t.Log("response Body:", string(body))
-			_ = body
+			t.Log("body:", string(body))
+
+			responseData, parseResponseAccessErr := messages.ParseResponseData(body)
+			if parseResponseAccessErr != nil {
+				t.Errorf("Failed to parse: %v\n", parseResponseAccessErr)
+			}
+
+			//t.Log("responseData:", responseData)
+
+			_ = responseData
 		})
 	}
 }

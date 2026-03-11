@@ -24,30 +24,15 @@ jobs:
         run: |
           go \
             version
-      - name: Apply secrets
+      - name: Perform tests
         env:
-          PROXMOX_HOST_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_HOST_CICD_SECRET_VALUE }}
-          PROXMOX_PORT_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_PORT_CICD_SECRET_VALUE }}
+          PROXMOX_INTERNAL_ADDRESS_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_INTERNAL_ADDRESS_CICD_SECRET_VALUE }}
+          PROXMOX_INTERNAL_TCP_PORT_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_INTERNAL_TCP_PORT_CICD_SECRET_VALUE }}
+          PROXMOX_EXTERNAL_ADDRESS_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_EXTERNAL_ADDRESS_CICD_SECRET_VALUE }}
+          PROXMOX_EXTERNAL_TCP_PORT_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_EXTERNAL_TCP_PORT_CICD_SECRET_VALUE }}
           PROXMOX_USERNAME_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_USERNAME_CICD_SECRET_VALUE }}
           PROXMOX_PASSWORD_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_PASSWORD_CICD_SECRET_VALUE }}
-        run: |
-          sed \
-            s/PROXMOX_HOST_CICD_SECRET_VALUE/$PROXMOX_HOST_CICD_SECRET_VALUE/g \
-            -i \
-            api/config.yml
-          sed \
-            s/PROXMOX_PORT_CICD_SECRET_VALUE/$PROXMOX_PORT_CICD_SECRET_VALUE/g \
-            -i \
-            api/config.yml
-          sed \
-            s/PROXMOX_USERNAME_CICD_SECRET_VALUE/$PROXMOX_USERNAME_CICD_SECRET_VALUE/g \
-            -i \
-            api/config.yml
-          sed \
-            s/PROXMOX_PASSWORD_CICD_SECRET_VALUE/$PROXMOX_PASSWORD_CICD_SECRET_VALUE/g \
-            -i \
-            api/config.yml
-      - name: Perform tests
+          PROXMOX_CONNECTION_TIMEOUT_CICD_SECRET_VALUE: ${{ secrets.PROXMOX_CONNECTION_TIMEOUT_CICD_SECRET_VALUE }}
         run: |
           go \
             test \

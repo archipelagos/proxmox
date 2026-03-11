@@ -16,7 +16,16 @@ func TestResponseNodesUnmarshal(t *testing.T) {
 		{
 			"odered",
 			[]byte(`{"Sys.Console":1,"Sys.PowerMgmt":2,"Sys.Audit":3,"Sys.Syslog":4,"Permissions.Modify":5,"Sys.Incoming":6,"Sys.Modify":7,"Sys.AccessNetwork":8}`),
-			messages.ResponseNodes{1, 2, 3, 4, 5, 6, 7, 8},
+			messages.ResponseNodes{
+				SysConsole:        1,
+				SysPowerMgmt:      2,
+				SysAudit:          3,
+				SysSyslog:         4,
+				PermissionsModify: 5,
+				SysIncoming:       6,
+				SysModify:         7,
+				SysAccessNetwork:  8,
+			},
 		},
 	}
 

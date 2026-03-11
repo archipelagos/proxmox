@@ -10,12 +10,7 @@ import (
 )
 
 func init() {
-	err := api.LoadAppConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	api.EnvConfigProd = api.LoadEnvConfig("prod")
+	api.EnvConfigProd = api.LoadEnvConfig()
 
 	// Disable security checks globally for all requests of the default client.
 	// Security note: Disabling security checks is dangerous and should be avoided.

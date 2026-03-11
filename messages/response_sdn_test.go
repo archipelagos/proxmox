@@ -16,7 +16,12 @@ func TestResponseSDNUnmarshal(t *testing.T) {
 		{
 			"odered",
 			[]byte(`{"SDN.Allocate":1,"Permissions.Modify":2,"SDN.Audit":3,"SDN.Use":4}`),
-			messages.ResponseSDN{1, 2, 3, 4},
+			messages.ResponseSDN{
+				SDNAllocate:       1,
+				PermissionsModify: 2,
+				SDNAudit:          3,
+				SDNUse:            4,
+			},
 		},
 	}
 

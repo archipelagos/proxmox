@@ -16,7 +16,13 @@ func TestResponseStorageUnmarshal(t *testing.T) {
 		{
 			"odered",
 			[]byte(`{"Datastore.AllocateSpace":1,"Datastore.AllocateTemplate":2,"Datastore.Allocate":3,"Permissions.Modify":4,"Datastore.Audit":5}`),
-			messages.ResponseStorage{1, 2, 3, 4, 5},
+			messages.ResponseStorage{
+				DatastoreAllocateSpace:    1,
+				DatastoreAllocateTemplate: 2,
+				DatastoreAllocate:         3,
+				PermissionsModify:         4,
+				DatastoreAudit:            5,
+			},
 		},
 	}
 

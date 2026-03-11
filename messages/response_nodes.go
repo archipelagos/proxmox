@@ -13,6 +13,7 @@ type ResponseNodes struct {
 	SysAccessNetwork  int `json:"Sys.AccessNetwork"`
 }
 
+// TODO: Implement via Unmarshaller interface.
 func ParseResponseNodes(bytes []byte) (ResponseNodes, error) {
 	var responseNodes ResponseNodes
 	unmarshalErr := json.Unmarshal(bytes, &responseNodes)

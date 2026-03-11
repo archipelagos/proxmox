@@ -1,0 +1,12 @@
+services:
+  actions-runner:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: no
+    environment:
+      - RUNNER_URL=${RUNNER_URL}
+      - RUNNER_TOKEN=${RUNNER_TOKEN}
+      - RUNNER_NAME=${RUNNER_NAME}
+      - RUNNER_EXTRA_TAGS=${RUNNER_EXTRA_TAGS}
+      - RUNNER_WORKDIR=${RUNNER_WORKDIR}
